@@ -1,8 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRouter from "./Routes/user_route.js";
+import Arouter from "./Routes/authRoute.js";
 dotenv.config();
 
+// ************ CONNECTING TO DATABASE ***************
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
@@ -14,6 +17,13 @@ mongoose
 
 const app = express();
 
+app.use(express.json());
+
 app.listen(3000, () => {
   console.log("Sever is running on port 3000");
 });
+
+// ************ ROUTES **************
+
+app.use("/api/user", userRouter);
+app.use("/api/auth", Arouter);
