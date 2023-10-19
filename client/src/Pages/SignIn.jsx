@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart } from "../redux/user/userSlice";
+import { signInSuccess } from "../redux/user/userSlice";
+import { signInFailure } from "../redux/user/userSlice";
 
 const SignIn = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
-  const [isError, setIsError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const handelChange = (e) => {
     setFormData({
@@ -15,7 +19,7 @@ const SignIn = () => {
   const handelSubmit = async (e) => {
     e.preventDefault();
     try {
-      setIsLoading(true);
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -25,16 +29,13 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setIsError(data.message);
-        setIsLoading(false);
+        dispatch(signInFailure(data.message));
         return;
       }
-      setIsLoading(false);
-      setIsError(null);
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
-      setIsLoading(false);
-      setIsError(error.message);
+      dispatch(signInFailure(error.message));
     }
   };
   console.log(formData);
@@ -58,10 +59,10 @@ const SignIn = () => {
           onChange={handelChange}
         />
         <button
-          disabled={isLoading}
+          disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-90 disabled:opacity-80"
         >
-          {isLoading ? "Loading..." : "Sign In"}
+          {loading ? "Loading..." : "Sign In"}
         </button>
       </form>
       <div className="flex gap-1 mt-5 ml-6">
@@ -70,7 +71,7 @@ const SignIn = () => {
           <span className="text-blue-700">sign Up</span>
         </Link>
       </div>
-      {isError && <p className="text-red-500 mt-5 ml-6">{isError}</p>}
+      {error && <p className="text-red-500 mt-5 ml-6">{error}</p>}
     </div>
   );
 };
