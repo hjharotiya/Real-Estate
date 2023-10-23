@@ -1,6 +1,39 @@
+import { errorHandler } from "../utlis/error.js";
+import bcrypjs from "bcryptjs";
+import User from "../Models/user_model.js";
+
 export const test = (req, res) => {
   res.json({
     success: true,
     message: "hello people",
   });
+};
+
+export const updateUser = async (req, res, next) => {
+  console.log("user", req.user.id);
+  console.log("params", req.params.id);
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, "you can only update your own account !"));
+  try {
+    if (req.body.password) {
+      req.body.password = bcrypjs.hashSync(req.body.password, 10);
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          username: req.body.username,
+          email: req.body.email,
+          password: req.body.password,
+          avatar: req.body.avatar,
+        },
+      },
+      { new: true }
+    );
+    const { password, ...rest } = updatedUser._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    console.log("userVerification Error", error);
+    next(error);
+  }
 };

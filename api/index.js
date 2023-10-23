@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRouter from "./Routes/user_route.js";
+import cookieParser from "cookie-parser";
 import Arouter from "./Routes/authRoute.js";
 dotenv.config();
 
@@ -18,6 +19,7 @@ mongoose
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.listen(3000, () => {
   console.log("Sever is running on port 3000");
