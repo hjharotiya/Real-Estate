@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRouter from "./Routes/user_route.js";
 import cookieParser from "cookie-parser";
 import Arouter from "./Routes/authRoute.js";
+import listingRouter from "./Routes/listingrouter.js";
 dotenv.config();
 
 // ************ CONNECTING TO DATABASE ***************
@@ -29,6 +30,7 @@ app.listen(3000, () => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", Arouter);
+app.use("/api/listing", listingRouter);
 
 // ********** MIDDLEWARE *********
 app.use((err, req, res, next) => {
