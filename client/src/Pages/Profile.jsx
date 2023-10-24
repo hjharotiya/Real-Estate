@@ -8,14 +8,30 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import {
+  updateUserFailure,
+  updateUserSuccess,
+  updateUserStart,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+} from "../redux/user/userSlice";
 
+import { useDispatch } from "react-redux";
 const Profile = () => {
   const fileRef = useRef(null);
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileuploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [updatedSuccess, setUpdatedSuccess] = useState(false);
+
+  const Dispatch = useDispatch();
+
+  const handelChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
   useEffect(() => {
     if (file) {
@@ -48,10 +64,51 @@ const Profile = () => {
     );
   };
 
+  const handelSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      Dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        Dispatch(updateUserFailure(data.message));
+        return;
+      }
+      Dispatch(updateUserSuccess(data));
+      setUpdatedSuccess(true);
+      console.log(updatedSuccess);
+    } catch (error) {
+      Dispatch(updateUserFailure(error.message));
+    }
+  };
+
+  const handelDeleteUser = async () => {
+    try {
+      Dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        Dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      Dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      Dispatch(deleteUserFailure(error.message));
+    }
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-3">
+      <form onSubmit={handelSubmit} className="flex flex-col gap-3">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -80,29 +137,47 @@ const Profile = () => {
         <input
           type="text"
           placeholder="username"
+          defaultValue={currentUser.username}
           className="rounded-lg border p-3"
           id="username"
+          onChange={handelChange}
         />
         <input
           type="email"
           placeholder="email"
+          defaultValue={currentUser.email}
           className="rounded-lg border p-3"
           id="email"
+          onChange={handelChange}
         />
         <input
-          type="text"
+          type="password"
           placeholder="password"
           className="rounded-lg border p-3"
           id="password"
+          onChange={handelChange}
         />
-        <button className="bg-slate-700 uppercase text-white rounded-lg p-3 hover:opacity-90 disabled:opacity-80">
-          update
+        <button
+          disabled={loading}
+          type="submit"
+          className="bg-slate-700 uppercase text-white rounded-lg p-3 hover:opacity-90 disabled:opacity-80"
+        >
+          {loading ? "Loading..." : "update"}
         </button>
       </form>
       <div className="flex justify-between mt-4">
-        <span className="text-red-700 cursor-pointer">Delete account</span>
+        <span
+          onClick={handelDeleteUser}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete account
+        </span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
+      <p className="text-red-700 self-center">{error ? error : ""}</p>
+      <p className="text-green-700 self-center">
+        {updatedSuccess ? "User is Successfully updated !" : ""}
+      </p>
     </div>
   );
 };
