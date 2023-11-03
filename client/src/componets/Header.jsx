@@ -29,7 +29,7 @@ export default function Header() {
     <header className="bg-slate-200 shadow-md">
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
         <Link to="/">
-          <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
+          <h1 className="font-bold text-xs sm:text-xl flex flex-wrap">
             <span className="text-slate-500">Indusland</span>
             <span className="text-slate-700">Estate</span>
           </h1>
@@ -43,7 +43,7 @@ export default function Header() {
             placeholder="search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent focus:outline-none w-24 sm:w-64 "
+            className="bg-transparent focus:outline-none w-20 sm:w-64 "
           />
           <button>
             <AiOutlineSearch className="text-slate-600" />
