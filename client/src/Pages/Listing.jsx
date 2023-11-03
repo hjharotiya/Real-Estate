@@ -23,6 +23,7 @@ export default function Listing() {
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(true);
   const [contact, setContact] = useState(false);
+
   const { currentUser } = useSelector((state) => state.user);
   const params = useParams();
   useEffect(() => {
@@ -46,7 +47,6 @@ export default function Listing() {
     };
     fetchListing();
   }, [params.ListingId]);
-  console.log(currentUser?._id, listing?.userRef);
   return (
     <main>
       {loading && <h1 className="text-center my-7 text-2xl">Loading...</h1>}

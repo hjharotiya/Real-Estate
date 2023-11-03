@@ -17,6 +17,22 @@ export default function Search() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [listing, setListing] = useState([]);
+  const [showMore, setShowMore] = useState(false);
+
+  const onShowMoreClick = async () => {
+    console.log("clicked");
+    const numberOfListing = listing.length;
+    const startIndex = numberOfListing;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+    if (data.length < 9) {
+      setShowMore(false);
+    }
+    setListing([...listing, ...data]);
+  };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -51,15 +67,20 @@ export default function Search() {
 
     const fetchListing = async () => {
       setLoading(true);
+      setShowMore(false);
       const searchQuery = urlParams.toString();
       const res = await fetch(`api/listing/get?${searchQuery}`);
       const data = await res.json();
+      if (data.length > 8) {
+        setShowMore(true);
+      } else {
+        setShowMore(false);
+      }
       setListing(data);
       setLoading(false);
     };
     fetchListing();
   }, [location.search]);
-  console.log(listing);
 
   const handelChange = (e) => {
     if (
@@ -233,6 +254,18 @@ export default function Search() {
             listing.map((list) => (
               <ListingItems key={list._id} listing={list} />
             ))}
+
+          {showMore && (
+            <button
+              type="button"
+              onClick={() => {
+                onShowMoreClick();
+              }}
+              className="hover:underline p-7 text-green-700 text-center w-full capitalize"
+            >
+              show more...
+            </button>
+          )}
         </div>
       </div>
     </div>
