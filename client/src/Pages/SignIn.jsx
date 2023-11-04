@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signInStart } from "../redux/user/userSlice";
 import { signInSuccess } from "../redux/user/userSlice";
 import { signInFailure } from "../redux/user/userSlice";
-import OAuth from "../componets/Oauth";
+import OAuth from "../componets/OAuth";
 
 const SignIn = () => {
   const dispatch = useDispatch();
